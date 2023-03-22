@@ -1,0 +1,6 @@
+{
+  "extends": ["warp", "warp/es6", "warp/jsx", "warp/module", "warp/typescript"],
+  "parserOptions": {
+    "project": "tsconfig.json"
+  }
+}
