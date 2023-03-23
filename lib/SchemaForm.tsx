@@ -5,13 +5,13 @@ import * as R from '@effect/data/ReadonlyRecord';
 import * as S from '@effect/schema/Schema';
 import React, {HTMLAttributes, ReactNode, useCallback, useMemo, useState} from 'react';
 import {SchemaFormContext} from './context';
-import {FormData, FormValue, ParseErrors} from './types';
+import {FormData, FormValue, ErrorList} from './types';
 import {foldEither} from './util';
 
 export type FormRenderProps<To> = {
   data: FormData;
   decoded: O.Option<To>;
-  errors: O.Option<ParseErrors>;
+  errors: O.Option<ErrorList>;
 };
 
 export type SchemaFormProps<From, To> = {
@@ -40,7 +40,7 @@ export const SchemaForm = <From extends Record<string, unknown>, To>({
       e => e.from,
       v => v.value
     )),
-    x => decode(x, {allErrors: true})
+    x => decode(x as unknown as From, {allErrors: true})
   ), [rawData, decode]);
 
   const submit = useCallback(() => pipe(
@@ -51,14 +51,14 @@ export const SchemaForm = <From extends Record<string, unknown>, To>({
   const contextValue = useMemo<SchemaFormContext>(() => ({
     data: rawData,
     setFieldValue: setFieldValue,
-    formErrors: E.getLeft(decodedData),
+    formErrors: pipe(E.getLeft(decodedData), O.map(x => x.errors)),
     decoded: E.getRight(decodedData),
   }), [rawData, setFieldValue, decodedData]);
 
   const renderProps = useMemo<FormRenderProps<To>>(() => ({
     data: rawData,
     decoded: E.getRight(decodedData),
-    errors: E.getLeft(decodedData),
+    errors: pipe(E.getLeft(decodedData), O.map(x => x.errors)),
   }), [rawData, decodedData]);
 
   return (

@@ -1,7 +1,7 @@
 import * as E from '@effect/data/Either';
 import {pipe} from '@effect/data/Function';
 import * as O from '@effect/data/Option';
-import {FormValue, ParseErrors} from './types';
+import {FormValue, ErrorList} from './types';
 
 export const validValue = <From, To>(
   from: From,
@@ -13,7 +13,7 @@ export const validValue = <From, To>(
 
 export const errorValue = <From, To>(
   from: From,
-  errors: ParseErrors
+  errors: ErrorList
 ): FormValue<From, To> => E.left({
   errors,
   from,

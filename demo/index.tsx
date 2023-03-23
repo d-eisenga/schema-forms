@@ -1,6 +1,7 @@
 import {pipe} from '@effect/data/Function';
 import {isSome} from '@effect/data/Option';
 import * as S from '@effect/schema/Schema';
+import {formatErrors} from '@effect/schema/TreeFormatter';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 import {FormDebug} from '../lib/FormDebug';
@@ -9,7 +10,9 @@ import {SchemaForm} from '../lib/SchemaForm';
 
 const Name = pipe(
   S.string,
+  S.message(() => 'Not a string'),
   S.minLength(1),
+  S.message(() => 'required'),
   S.maxLength(30),
   S.pattern(/^[a-zA-Z \-.]+$/u),
   S.trimmed()
@@ -49,6 +52,14 @@ const TestForm = () => (
           )}
         />
         <input type="submit" disabled={isSome(errors)} />
+        {isSome(errors) && (
+          <ul>
+            {errors.value.map(e => {
+              const err = formatErrors([e]);
+              return <li key={err}>{err}</li>;
+            })}
+          </ul>
+        )}
         <FormDebug />
       </>
     )}

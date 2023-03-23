@@ -5,7 +5,7 @@ import * as R from '@effect/data/ReadonlyRecord';
 import * as S from '@effect/schema/Schema';
 import React, {ReactNode, useCallback, useContext, useMemo, useState} from 'react';
 import {SchemaFormContext} from './context';
-import {ParseErrors} from './types';
+import {ErrorList} from './types';
 import {
   chainOption,
   errorValue,
@@ -22,7 +22,7 @@ export type FieldRenderProps<From, To> = {
   touched: boolean;
   focused: boolean;
   decoded: O.Option<To>;
-  fieldErrors: O.Option<ParseErrors>;
+  fieldErrors: O.Option<ErrorList>;
   onFocus: () => void;
   onBlur: () => void;
 };
@@ -67,7 +67,7 @@ export const SchemaField = <From, To>({
   const onChange = useCallback((from: From) => pipe(
     decode(from, {allErrors: true}),
     foldEither(
-      errors => errorValue<From, To>(from, errors),
+      errors => errorValue<From, To>(from, errors.errors),
       v => validValue(from, v)
     ),
     v => {

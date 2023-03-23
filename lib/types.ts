@@ -1,9 +1,9 @@
 import * as E from '@effect/data/Either';
 import {NonEmptyReadonlyArray} from '@effect/data/ReadonlyArray';
-import {ParseError} from '@effect/schema/ParseResult';
+import {ParseErrors} from '@effect/schema/ParseResult';
 import * as S from '@effect/schema/Schema';
 
-export type ParseErrors = NonEmptyReadonlyArray<ParseError>;
+export type ErrorList = NonEmptyReadonlyArray<ParseErrors>;
 
 export type ValidValue<From, To> = {
   value: To;
@@ -11,7 +11,7 @@ export type ValidValue<From, To> = {
 };
 
 export type ErrorValue<From> = {
-  errors: ParseErrors;
+  errors: ErrorList;
   from: From;
 };
 
