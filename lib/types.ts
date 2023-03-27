@@ -19,6 +19,8 @@ export type FormValue<From, To> = E.Either<ErrorValue<From>, ValidValue<From, To
 
 export type FormData = Readonly<Record<string, FormValue<unknown, unknown>>>;
 
+export type ErrorFreeFormData = Readonly<Record<string, E.Right<ValidValue<unknown, unknown>>>>;
+
 export type FieldType<Schema, FieldName> = (
   Schema extends S.Schema<infer From, infer To> ? (
     FieldName extends keyof From ? (

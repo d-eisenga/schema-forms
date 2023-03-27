@@ -1,6 +1,7 @@
 import * as E from '@effect/data/Either';
-import {pipe} from '@effect/data/Function';
+import {pipe, identity} from '@effect/data/Function';
 import * as O from '@effect/data/Option';
+import * as S from '@effect/schema/Schema';
 import {FormValue, ErrorList} from './types';
 
 export const validValue = <From, To>(
@@ -44,4 +45,13 @@ export const getDecodedValue = <From, To>(value: FormValue<From, To>) => pipe(
   value,
   E.toOption,
   O.map(v => v.value)
+);
+
+export const chainSchema = <Intermediate, To>(self: S.Schema<Intermediate, To>) => (
+  <From>(other: S.Schema<From, Intermediate>) => S.transform<From, Intermediate, Intermediate, To>(
+    other,
+    self,
+    identity,
+    identity
+  )
 );

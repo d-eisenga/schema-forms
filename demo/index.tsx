@@ -7,6 +7,7 @@ import {createRoot} from 'react-dom/client';
 import {FormDebug} from '../lib/FormDebug';
 import {SchemaField} from '../lib/SchemaField';
 import {SchemaForm} from '../lib/SchemaForm';
+import {chainSchema} from '../lib/util';
 
 const Name = pipe(
   S.string,
@@ -19,6 +20,9 @@ const Name = pipe(
 );
 
 const Age = pipe(S.number, S.nonNegative(), S.finite());
+const AgeFromString = pipe(S.numberFromString(S.string), chainSchema(Age));
+
+console.log(S.decodeEither(AgeFromString)('123'));
 
 const User = S.struct({
   name: Name,
@@ -43,7 +47,7 @@ const TestForm = () => (
         />
         <SchemaField
           name="age"
-          Schema={S.numberFromString(S.string)}
+          Schema={AgeFromString}
           render={({value, onChange}) => (
             <input
               value={isSome(value) ? value.value : ''}
