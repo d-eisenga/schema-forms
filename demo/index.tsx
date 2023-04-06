@@ -16,13 +16,14 @@ const Name = pipe(
   S.message(() => 'required'),
   S.maxLength(30),
   S.pattern(/^[a-zA-Z \-.]+$/u),
-  S.trimmed()
+  S.trimmed(),
+  S.identifier('Name'),
+  S.title('name'),
+  S.description('A person\'s name')
 );
 
 const Age = pipe(S.number, S.nonNegative(), S.finite());
 const AgeFromString = pipe(S.numberFromString(S.string), chainSchema(Age));
-
-console.log(S.decodeEither(AgeFromString)('123'));
 
 const User = S.struct({
   name: Name,
