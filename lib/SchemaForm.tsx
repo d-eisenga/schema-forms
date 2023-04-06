@@ -61,7 +61,7 @@ export const SchemaForm = <From extends Record<string, unknown>, To>({
       formData => pipe(
         formData,
         R.map(v => v.right.value),
-        x => decode(x as From, {allErrors: true}),
+        x => decode(x as From, {errors: 'all'})
       )
     )
   ), [rawData, decode]);

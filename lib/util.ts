@@ -29,8 +29,8 @@ export const foldEither = <E, A, B>(
 
 export const chainOption = <A, B>(
   fn: (a: A) => O.Option<B>
-) => (self: O.Option<A>) => (
-  O.isSome(self) ? fn(self.value) : self
+) => (self: O.Option<A>): O.Option<B> => (
+  O.isSome(self) ? fn(self.value) : O.none()
 );
 
 export const getRawValue = <From, To>(value: FormValue<From, To>) => pipe(

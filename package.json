@@ -11,8 +11,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@effect/data": "^0.7.1",
-    "@effect/schema": "^0.6.0",
+    "@effect/data": "^0.11.1",
+    "@effect/schema": "^0.11.1",
     "@types/react-dom": "^18.0.11",
     "@typescript-eslint/eslint-plugin": "^5.54.1",
     "@typescript-eslint/parser": "^5.54.1",

@@ -65,7 +65,7 @@ export const SchemaField = <From, To>({
   ), [value, isValueType]);
 
   const onChange = useCallback((from: From) => pipe(
-    decode(from, {allErrors: true}),
+    decode(from, {errors: 'all'}),
     foldEither(
       errors => errorValue<From, To>(from, errors.errors),
       v => validValue(from, v)
