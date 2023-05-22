@@ -3,7 +3,7 @@ import {pipe} from '@effect/data/Function';
 import * as O from '@effect/data/Option';
 import * as R from '@effect/data/ReadonlyRecord';
 import * as S from '@effect/schema/Schema';
-import React, {ReactNode, useCallback, useContext, useMemo, useState} from 'react';
+import React, {ReactNode, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {SchemaFormContext} from './context';
 import {ErrorList} from './types';
 import {
@@ -38,7 +38,7 @@ export const SchemaField = <From, To>({
   Schema,
   render,
 }: SchemaFieldProps<From, To>) => {
-  const {data, setFieldValue} = useContext(SchemaFormContext);
+  const {data, setFieldValue, initialValues} = useContext(SchemaFormContext);
   const [dirty, setDirty] = useState(false);
   const [touched, setTouched] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -75,6 +75,10 @@ export const SchemaField = <From, To>({
       setDirty(true);
     }
   ), [decode, setFieldValue, setDirty]);
+
+  useEffect(() => {
+    onChange(initialValues[name] as From);
+  }, [onChange, initialValues[name]]);
 
   const errors = useMemo(() => pipe(
     value,

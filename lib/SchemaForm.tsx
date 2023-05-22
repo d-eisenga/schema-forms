@@ -19,6 +19,7 @@ export type SchemaFormProps<From, To> = {
   Schema: S.Schema<From, To>;
   onSubmit: (data: To) => unknown;
   render: (props: FormRenderProps<To>) => ReactNode;
+  initialValues?: Record<string, unknown>;
 } & Omit<HTMLAttributes<HTMLFormElement>, 'onSubmit' | 'children'>;
 
 const isErrorFreeFormData = (formData: FormData): formData is ErrorFreeFormData => pipe(
@@ -41,6 +42,7 @@ export const SchemaForm = <From extends Record<string, unknown>, To>({
   Schema,
   onSubmit,
   render,
+  initialValues = {},
   ...props
 }: SchemaFormProps<From, To>) => {
   const [rawData, setRawData] = useState<FormData>({});
@@ -53,8 +55,8 @@ export const SchemaForm = <From extends Record<string, unknown>, To>({
 
   const decodedData = useMemo(() => pipe(
     rawData,
-    foldFormData(
-      (): E.Either<PR.ParseError, To> => E.left({
+    foldFormData<E.Either<PR.ParseError, To>>(
+      () => E.left({
         _tag: 'ParseError',
         errors: [PR.unexpected('errors')],
       }),
@@ -76,7 +78,8 @@ export const SchemaForm = <From extends Record<string, unknown>, To>({
     setFieldValue: setFieldValue,
     formErrors: pipe(E.getLeft(decodedData), O.map(x => x.errors)),
     decoded: E.getRight(decodedData),
-  }), [rawData, setFieldValue, decodedData]);
+    initialValues: initialValues,
+  }), [rawData, setFieldValue, decodedData, initialValues]);
 
   const renderProps = useMemo<FormRenderProps<To>>(() => ({
     data: rawData,

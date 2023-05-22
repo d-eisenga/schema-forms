@@ -7,6 +7,7 @@ export type SchemaFormContext = {
   setFieldValue: (fieldName: string, value: FormValue<unknown, unknown>) => void;
   formErrors: O.Option<ErrorList>;
   decoded: O.Option<unknown>;
+  initialValues: Record<string, unknown>;
 };
 
 export const SchemaFormContext = createContext<SchemaFormContext>({
@@ -14,4 +15,5 @@ export const SchemaFormContext = createContext<SchemaFormContext>({
   setFieldValue: () => undefined,
   formErrors: O.none(),
   decoded: O.none(),
+  initialValues: {},
 });

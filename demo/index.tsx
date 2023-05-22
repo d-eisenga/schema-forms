@@ -1,5 +1,5 @@
 import {pipe} from '@effect/data/Function';
-import {isSome} from '@effect/data/Option';
+import {Option, isSome} from '@effect/data/Option';
 import * as S from '@effect/schema/Schema';
 import {formatErrors} from '@effect/schema/TreeFormatter';
 import React from 'react';
@@ -7,23 +7,42 @@ import {createRoot} from 'react-dom/client';
 import {FormDebug} from '../lib/FormDebug';
 import {SchemaField} from '../lib/SchemaField';
 import {SchemaForm} from '../lib/SchemaForm';
+import {ErrorList} from '../lib/types';
 import {chainSchema} from '../lib/util';
 
 const Name = pipe(
   S.string,
-  S.message(() => 'Not a string'),
-  S.minLength(1),
-  S.message(() => 'required'),
-  S.maxLength(30),
-  S.pattern(/^[a-zA-Z \-.]+$/u),
+  S.message(() => 'is required'),
   S.trimmed(),
-  S.identifier('Name'),
-  S.title('name'),
-  S.description('A person\'s name')
+  S.nonEmpty({message: () => 'is required'}),
+  S.maxLength(30, {message: () => 'cannot exceed 30 characters'}),
+  S.pattern(/^[a-zA-Z \-.]+$/u, {message: () => 'may only contain letters, spaces, and dashes'})
 );
 
-const Age = pipe(S.number, S.nonNegative(), S.finite());
-const AgeFromString = pipe(S.numberFromString(S.string), chainSchema(Age));
+const Age = pipe(
+  S.number,
+  S.message(() => 'must be a number'),
+  S.nonNegative({message: () => 'cannot be negative'}),
+  S.finite({message: () => 'must be finite'})
+);
+const AgeFromString = pipe(
+  S.string,
+  S.message(() => 'is required'),
+  chainSchema(S.numberFromString(S.string)),
+  S.message(() => 'blaat'),
+  chainSchema(Age)
+);
+
+const Errors = ({errors}: {errors: Option<ErrorList>}) => (
+  isSome(errors) ? (
+    <ul>
+      {errors.value.map(e => {
+        const err = formatErrors([e]);
+        return <li key={err}>{err}</li>;
+      })}
+    </ul>
+  ) : null
+);
 
 const User = S.struct({
   name: Name,
@@ -34,37 +53,40 @@ const TestForm = () => (
   <SchemaForm
     Schema={User}
     onSubmit={console.log}
+    initialValues={{
+      name: '123',
+      age: 'abc',
+    }}
     render={({errors}) => (
       <>
         <SchemaField
           name="name"
           Schema={Name}
-          render={({value, onChange}) => (
-            <input
-              value={isSome(value) ? value.value : ''}
-              onChange={e => onChange(e.target.value)}
-            />
+          render={({value, onChange, fieldErrors}) => (
+            <>
+              <input
+                value={isSome(value) ? value.value : ''}
+                onChange={e => onChange(e.target.value)}
+              />
+              <Errors errors={fieldErrors} />
+            </>
           )}
         />
         <SchemaField
           name="age"
           Schema={AgeFromString}
-          render={({value, onChange}) => (
-            <input
-              value={isSome(value) ? value.value : ''}
-              onChange={e => onChange(e.target.value)}
-            />
+          render={({value, onChange, fieldErrors}) => (
+            <>
+              <input
+                value={isSome(value) ? value.value : ''}
+                onChange={e => onChange(e.target.value)}
+              />
+              <Errors errors={fieldErrors} />
+            </>
           )}
         />
         <input type="submit" disabled={isSome(errors)} />
-        {isSome(errors) && (
-          <ul>
-            {errors.value.map(e => {
-              const err = formatErrors([e]);
-              return <li key={err}>{err}</li>;
-            })}
-          </ul>
-        )}
+        <Errors errors={errors} />
         <FormDebug />
       </>
     )}
