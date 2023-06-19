@@ -20,13 +20,6 @@ export const errorValue = <From, To>(
   from,
 });
 
-export const foldEither = <E, A, B>(
-  onLeft: (e: E) => B,
-  onRight: (a: A) => B
-) => (self: E.Either<E, A>) => (
-  E.isLeft(self) ? onLeft(self.left) : onRight(self.right)
-);
-
 export const chainOption = <A, B>(
   fn: (a: A) => O.Option<B>
 ) => (self: O.Option<A>): O.Option<B> => (
@@ -35,7 +28,7 @@ export const chainOption = <A, B>(
 
 export const getRawValue = <From, To>(value: FormValue<From, To>) => pipe(
   value,
-  foldEither(
+  E.match(
     e => e.from,
     v => v.from
   )

@@ -9,7 +9,6 @@ import {ErrorList} from './types';
 import {
   chainOption,
   errorValue,
-  foldEither,
   getDecodedValue,
   getRawValue,
   validValue,
@@ -66,7 +65,7 @@ export const SchemaField = <From, To>({
 
   const onChange = useCallback((from: From) => pipe(
     decode(from, {errors: 'all'}),
-    foldEither(
+    E.match(
       errors => errorValue<From, To>(from, errors.errors),
       v => validValue(from, v)
     ),

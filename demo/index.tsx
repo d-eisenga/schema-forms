@@ -1,5 +1,6 @@
 import {pipe} from '@effect/data/Function';
 import {Option, isSome} from '@effect/data/Option';
+import {MessageAnnotation} from '@effect/schema/AST';
 import * as S from '@effect/schema/Schema';
 import {formatErrors} from '@effect/schema/TreeFormatter';
 import React from 'react';
@@ -10,11 +11,15 @@ import {SchemaForm} from '../lib/SchemaForm';
 import {ErrorList} from '../lib/types';
 import {chainSchema} from '../lib/util';
 
-const Name = pipe(
+const NonEmptyString = (message: MessageAnnotation<unknown>) => pipe(
   S.string,
-  S.message(() => 'is required'),
+  S.message(message),
   S.trimmed(),
-  S.nonEmpty({message: () => 'is required'}),
+  S.nonEmpty({message})
+);
+
+const Name = pipe(
+  NonEmptyString(() => 'is required'),
   S.maxLength(30, {message: () => 'cannot exceed 30 characters'}),
   S.pattern(/^[a-zA-Z \-.]+$/u, {message: () => 'may only contain letters, spaces, and dashes'})
 );
@@ -26,10 +31,8 @@ const Age = pipe(
   S.finite({message: () => 'must be finite'})
 );
 const AgeFromString = pipe(
-  S.string,
-  S.message(() => 'is required'),
-  chainSchema(S.numberFromString(S.string)),
-  S.message(() => 'blaat'),
+  NonEmptyString(() => 'is required'),
+  chainSchema(S.NumberFromString),
   chainSchema(Age)
 );
 
