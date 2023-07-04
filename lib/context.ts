@@ -4,16 +4,16 @@ import {FormData, FormValue, ErrorList} from './types';
 
 export type SchemaFormContext = {
   data: FormData;
-  setFieldValue: (fieldName: string, value: FormValue<unknown, unknown>) => void;
-  formErrors: O.Option<ErrorList>;
   decoded: O.Option<unknown>;
+  formErrors: O.Option<ErrorList>;
+  setFieldValue: (fieldName: string, value: FormValue<unknown, unknown>) => void;
   initialValues: Record<string, unknown>;
 };
 
 export const SchemaFormContext = createContext<SchemaFormContext>({
   data: {},
-  setFieldValue: () => undefined,
-  formErrors: O.none(),
   decoded: O.none(),
+  formErrors: O.none(),
+  setFieldValue: () => undefined,
   initialValues: {},
 });

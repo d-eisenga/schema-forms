@@ -5,8 +5,7 @@ import * as S from '@effect/schema/Schema';
 import {formatErrors} from '@effect/schema/TreeFormatter';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
-import {FormDebug} from '../lib/FormDebug';
-import {SchemaField} from '../lib/SchemaField';
+import {SchemaField, SchemaFieldProps} from '../lib/SchemaField';
 import {SchemaForm} from '../lib/SchemaForm';
 import {ErrorList} from '../lib/types';
 import {chainSchema} from '../lib/util';
@@ -52,6 +51,26 @@ const User = S.struct({
   age: Age,
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+const TextField = <T extends unknown>({
+  name,
+  Schema,
+}: Omit<SchemaFieldProps<string, T>, 'render'>) => (
+  <SchemaField
+    name={name}
+    Schema={Schema}
+    render={({value, onChange, fieldErrors}) => (
+      <>
+        <input
+          value={isSome(value) ? value.value : ''}
+          onChange={e => onChange(e.target.value)}
+        />
+        <Errors errors={fieldErrors} />
+      </>
+    )}
+  />
+);
+
 const TestForm = () => (
   <SchemaForm
     Schema={User}
@@ -60,39 +79,17 @@ const TestForm = () => (
       name: '123',
       age: 'abc',
     }}
-    render={({errors}) => (
-      <>
-        <SchemaField
-          name="name"
-          Schema={Name}
-          render={({value, onChange, fieldErrors}) => (
-            <>
-              <input
-                value={isSome(value) ? value.value : ''}
-                onChange={e => onChange(e.target.value)}
-              />
-              <Errors errors={fieldErrors} />
-            </>
-          )}
-        />
-        <SchemaField
-          name="age"
-          Schema={AgeFromString}
-          render={({value, onChange, fieldErrors}) => (
-            <>
-              <input
-                value={isSome(value) ? value.value : ''}
-                onChange={e => onChange(e.target.value)}
-              />
-              <Errors errors={fieldErrors} />
-            </>
-          )}
-        />
-        <input type="submit" disabled={isSome(errors)} />
-        <Errors errors={errors} />
-        <FormDebug />
-      </>
-    )}
+    render={({data, decoded, formErrors}) => {
+      console.log({data, decoded, formErrors});
+      return (
+        <>
+          <TextField name="name" Schema={Name} />
+          <TextField name="age" Schema={AgeFromString} />
+          <input type="submit" disabled={isSome(formErrors)} />
+          <Errors errors={formErrors} />
+        </>
+      );
+    }}
   />
 );
 

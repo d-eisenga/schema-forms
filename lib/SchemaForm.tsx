@@ -12,7 +12,7 @@ import {FormData, FormValue, ErrorList, ErrorFreeFormData} from './types';
 export type FormRenderProps<To> = {
   data: FormData;
   decoded: O.Option<To>;
-  errors: O.Option<ErrorList>;
+  formErrors: O.Option<ErrorList>;
 };
 
 export type SchemaFormProps<From, To> = {
@@ -75,16 +75,16 @@ export const SchemaForm = <From extends Record<string, unknown>, To>({
 
   const contextValue = useMemo<SchemaFormContext>(() => ({
     data: rawData,
-    setFieldValue: setFieldValue,
-    formErrors: pipe(E.getLeft(decodedData), O.map(x => x.errors)),
     decoded: E.getRight(decodedData),
+    formErrors: pipe(E.getLeft(decodedData), O.map(x => x.errors)),
+    setFieldValue: setFieldValue,
     initialValues: initialValues,
   }), [rawData, setFieldValue, decodedData, initialValues]);
 
   const renderProps = useMemo<FormRenderProps<To>>(() => ({
     data: rawData,
     decoded: E.getRight(decodedData),
-    errors: pipe(E.getLeft(decodedData), O.map(x => x.errors)),
+    formErrors: pipe(E.getLeft(decodedData), O.map(x => x.errors)),
   }), [rawData, decodedData]);
 
   return (

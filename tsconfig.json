@@ -18,7 +18,7 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "target": "ES2017",
-    "lib": ["ES2019", "DOM"]
+    "lib": ["ES2020", "DOM"]
   },
   "include": ["demo/**/*", "lib/**/*"],
 }
