@@ -1,4 +1,3 @@
-import {pipe} from '@effect/data/Function';
 import {Option, isSome} from '@effect/data/Option';
 import {MessageAnnotation} from '@effect/schema/AST';
 import * as S from '@effect/schema/Schema';
@@ -8,30 +7,26 @@ import {createRoot} from 'react-dom/client';
 import {SchemaField, SchemaFieldProps} from '../lib/SchemaField';
 import {SchemaForm} from '../lib/SchemaForm';
 import {ErrorList} from '../lib/types';
-import {chainSchema} from '../lib/util';
+import {chainSchema} from './util';
 
-const NonEmptyString = (message: MessageAnnotation<unknown>) => pipe(
-  S.string,
+const NonEmptyString = (message: MessageAnnotation<unknown>) => S.string.pipe(
   S.message(message),
   S.trimmed(),
   S.nonEmpty({message})
 );
 
-const Name = pipe(
-  NonEmptyString(() => 'is required'),
+const Name = NonEmptyString(() => 'is required').pipe(
   S.maxLength(30, {message: () => 'cannot exceed 30 characters'}),
   S.pattern(/^[a-zA-Z \-.]+$/u, {message: () => 'may only contain letters, spaces, and dashes'})
 );
 
-const Age = pipe(
-  S.number,
+const Age = S.number.pipe(
   S.message(() => 'must be a number'),
   S.nonNegative({message: () => 'cannot be negative'}),
   S.finite({message: () => 'must be finite'})
 );
-const AgeFromString = pipe(
-  NonEmptyString(() => 'is required'),
-  chainSchema(S.NumberFromString),
+const AgeFromString = NonEmptyString(() => 'is required').pipe(
+  S.numberFromString,
   chainSchema(Age)
 );
 

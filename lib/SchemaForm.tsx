@@ -1,13 +1,13 @@
 import * as E from '@effect/data/Either';
 import {pipe} from '@effect/data/Function';
-import * as N from '@effect/data/Number';
 import * as O from '@effect/data/Option';
 import * as R from '@effect/data/ReadonlyRecord';
 import * as PR from '@effect/schema/ParseResult';
 import * as S from '@effect/schema/Schema';
 import React, {HTMLAttributes, ReactNode, useCallback, useMemo, useState} from 'react';
 import {SchemaFormContext} from './context';
-import {FormData, FormValue, ErrorList, ErrorFreeFormData} from './types';
+import {FormData, FormValue, ErrorList} from './types';
+import {foldFormData} from './util';
 
 export type FormRenderProps<To> = {
   data: FormData;
@@ -21,22 +21,6 @@ export type SchemaFormProps<From, To> = {
   render: (props: FormRenderProps<To>) => ReactNode;
   initialValues?: Record<string, unknown>;
 } & Omit<HTMLAttributes<HTMLFormElement>, 'onSubmit' | 'children'>;
-
-const isErrorFreeFormData = (formData: FormData): formData is ErrorFreeFormData => pipe(
-  formData,
-  R.map(E.getLeft),
-  R.compact,
-  R.size,
-  N.lessThan(1)
-);
-
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
-const foldFormData = <A extends unknown>(
-  onErrors: (formData: FormData) => A,
-  onErrorFree: (formData: ErrorFreeFormData) => A
-) => (formData: FormData) => (
-  isErrorFreeFormData(formData) ? onErrorFree(formData) : onErrors(formData)
-);
 
 export const SchemaForm = <From extends Record<string, unknown>, To>({
   Schema,
@@ -56,10 +40,7 @@ export const SchemaForm = <From extends Record<string, unknown>, To>({
   const decodedData = useMemo(() => pipe(
     rawData,
     foldFormData<E.Either<PR.ParseError, To>>(
-      () => E.left({
-        _tag: 'ParseError',
-        errors: [PR.unexpected('errors')],
-      }),
+      () => E.left(PR.parseError([PR.unexpected('errors')])),
       formData => pipe(
         formData,
         R.map(v => v.right.value),
@@ -70,7 +51,7 @@ export const SchemaForm = <From extends Record<string, unknown>, To>({
 
   const submit = useCallback(() => pipe(
     decodedData,
-    E.map(onSubmit)
+    E.mapRight(onSubmit)
   ), [decodedData, onSubmit]);
 
   const contextValue = useMemo<SchemaFormContext>(() => ({

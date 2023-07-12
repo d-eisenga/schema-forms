@@ -65,10 +65,10 @@ export const SchemaField = <From, To>({
 
   const onChange = useCallback((from: From) => pipe(
     decode(from, {errors: 'all'}),
-    E.match(
-      errors => errorValue<From, To>(from, errors.errors),
-      v => validValue(from, v)
-    ),
+    E.match({
+      onLeft: errors => errorValue<From, To>(from, errors.errors),
+      onRight: v => validValue(from, v),
+    }),
     v => {
       setFieldValue(name, v);
       setDirty(true);

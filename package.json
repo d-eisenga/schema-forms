@@ -5,14 +5,16 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
-    "dev": "vite serve demo"
+    "dev": "vite serve demo",
+    "typecheck": "tsc",
+    "build": "tsc -p lib"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@effect/data": "^0.12.2",
-    "@effect/schema": "^0.23.0",
+    "@effect/data": "^0.14.1",
+    "@effect/schema": "^0.26.0",
     "@types/react-dom": "^18.0.11",
     "@typescript-eslint/eslint-plugin": "^5.54.1",
     "@typescript-eslint/parser": "^5.54.1",

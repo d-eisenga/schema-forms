@@ -1,8 +1,9 @@
 import * as E from '@effect/data/Either';
-import {pipe, identity} from '@effect/data/Function';
+import {pipe} from '@effect/data/Function';
+import * as N from '@effect/data/Number';
 import * as O from '@effect/data/Option';
-import * as S from '@effect/schema/Schema';
-import {FormValue, ErrorList} from './types';
+import * as R from '@effect/data/ReadonlyRecord';
+import {FormValue, ErrorList, ErrorFreeFormData, FormData} from './types';
 
 export const validValue = <From, To>(
   from: From,
@@ -28,23 +29,30 @@ export const chainOption = <A, B>(
 
 export const getRawValue = <From, To>(value: FormValue<From, To>) => pipe(
   value,
-  E.match(
-    e => e.from,
-    v => v.from
-  )
+  E.match({
+    onLeft: e => e.from,
+    onRight: v => v.from,
+  })
 );
 
 export const getDecodedValue = <From, To>(value: FormValue<From, To>) => pipe(
   value,
-  E.toOption,
+  E.getRight,
   O.map(v => v.value)
 );
 
-export const chainSchema = <Intermediate, To>(self: S.Schema<Intermediate, To>) => (
-  <From>(other: S.Schema<From, Intermediate>) => S.transform<From, Intermediate, Intermediate, To>(
-    other,
-    self,
-    identity,
-    identity
-  )
+export const isErrorFreeFormData = (formData: FormData): formData is ErrorFreeFormData => pipe(
+  formData,
+  R.map(E.getLeft),
+  R.compact,
+  R.size,
+  N.lessThan(1)
 );
+
+export const foldFormData = <A>(
+  onErrors: (formData: FormData) => A,
+  onErrorFree: (formData: ErrorFreeFormData) => A
+) => (formData: FormData) => (
+  isErrorFreeFormData(formData) ? onErrorFree(formData) : onErrors(formData)
+);
+
